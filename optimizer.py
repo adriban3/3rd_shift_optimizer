@@ -4,6 +4,7 @@ import pandas
 import numpy
 import matplotlib.pyplot as plt
 import re
+import wx
 
 file_path = input("Please insert file location")
 file_name = input("Please insert file name")
