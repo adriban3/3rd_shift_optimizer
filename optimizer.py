@@ -85,14 +85,100 @@ def optimizer(fileNamePath):
                 eicount += 1
                 eilsum += int(job_lengths[index])
 
-    plot_arr = [thcount*thlsum, shcount*shlsum, twhcount*twhlsum, tmcount*tmlsum, thmcount*thmlsum, eicount*eilsum]
-    x = ["300mm", "600mm", "1.2m", "2m", "3m", "80in"]
+    plot_arr = [thcount*thlsum, shcount*shlsum, twhcount*twhlsum, tmcount*tmlsum, thmcount*thmlsum, eicount*eilsum] #determine max values to determine number of necessary operators
+    avg = numpy.mean(plot_arr)
+    dumby_arr = plot_arr[:]
 
-    plt.bar(x, plot_arr)
-    plt.ylabel("Job Length x Lot Width (m*mm)")
+    thops = 0
+    shops = 0
+    optmops = 0
+    tmops = 0
+    thmops = 0
+    eiops = 0
+    operators = 6
+
+    while operators > 0:
+        maxInd = numpy.argmax(dumby_arr)
+        if maxInd == 0 and thops < 1:
+            thops += 1
+            dumby_arr[maxInd] -= avg
+            operators -= 1
+            avg = numpy.mean(dumby_arr)
+        elif maxInd == 0 and thops >= 1:
+            dumby_arr[maxInd] -= dumby_arr[maxInd]
+            avg = numpy.mean(dumby_arr)
+        elif maxInd == 1 and shops < 4:
+            shops += 1
+            dumby_arr[maxInd] -= avg
+            operators -= 1
+            avg = numpy.mean(dumby_arr)
+        elif maxInd == 1 and shops >= 4:
+            dumby_arr[maxInd] -= dumby_arr[maxInd]
+            avg = numpy.mean(dumby_arr)
+        elif maxInd == 2 and optmops < 2:
+            if operators >= 2:
+                optmops += 2
+                dumby_arr[maxInd] -= avg
+                operators -= 2
+                avg = numpy.mean(dumby_arr)
+            else:
+                dumby_arr[maxInd] -= dumby_arr[maxInd]
+                avg = numpy.mean(dumby_arr)
+        elif maxInd == 2 and optmops >= 2:
+            dumby_arr[maxInd] -= dumby_arr[maxInd]
+            avg = numpy.mean(dumby_arr)
+        elif maxInd == 3 and tmops < 2:
+            if operators >= 2:
+                tmops += 2
+                dumby_arr[maxInd] -= avg
+                operators -= 2
+                avg = numpy.mean(dumby_arr)
+            else: 
+                dumby_arr[maxInd] -= dumby_arr[maxInd]
+                avg = numpy.mean(dumby_arr)                
+        elif maxInd == 3 and tmops >= 2:
+            dumby_arr[maxInd] -= dumby_arr[maxInd]
+            avg = numpy.mean(dumby_arr)
+        elif maxInd == 4 and thmops < 2:
+            if operators >= 2:
+                thmops += 2
+                dumby_arr[maxInd] -= avg
+                operators -= 2
+                avg = numpy.mean(dumby_arr)
+            else: 
+                dumby_arr[maxInd] -= dumby_arr[maxInd]
+                avg = numpy.mean(dumby_arr)
+        elif maxInd == 4 and thmops >= 2:
+            dumby_arr[maxInd] -= dumby_arr[maxInd]
+            avg = numpy.mean(dumby_arr)
+        elif maxInd == 5 and eiops < 4:
+            if operators >= 2:
+                eiops += 2
+                dumby_arr[maxInd] -= avg
+                operators -= 2
+                avg = numpy.mean(dumby_arr)
+            else: 
+                dumby_arr[maxInd] -= dumby_arr[maxInd]
+                avg = numpy.mean(dumby_arr)
+        elif maxInd == 5 and eiops >= 4:
+            dumby_arr[maxInd] -= dumby_arr[maxInd]
+            avg = numpy.mean(dumby_arr)
+
+    op_arr = [thops, shops, optmops, tmops, thmops, eiops]
+    x = ["300mm", "600mm", "1.2m", "2m", "3m", "80in"] #add operators bar for each slitter with secondary axis to show how many on each machine
+
+    ax = plt.subplot(111)
+    ax2 = ax.twinx()
+
+    ax.bar(x, plot_arr, width=-.2, color='blue', align='edge')
+    ax2.bar(x, op_arr, width=.2, color='orange', align='edge')
+
+    # plt.bar(x, plot_arr)
+    ax.set_ylabel("Job Length x Lot Width (m*mm)")
+    ax2.set_ylabel("Number of Operators by Slitter")
     plt.title("Slitter Utilization")
-    for a,b in zip(x, plot_arr):
-        plt.text(a,b,str(b))
+    for a,b in zip(x, op_arr):
+        plt.text(a,b,str(b), horizontalalignment='left', fontweight='bold', fontsize='12')
     plt.show()
 
 optimizer(fileNamePath)
